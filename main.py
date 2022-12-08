@@ -11,15 +11,19 @@ for bootstrap in range(5):
     tiktik = time.time()
     df = pd.read_excel('data_excel.xlsx')
     (trainData, testData) = train_test_split(df, test_size=(1-0.63))
+   
+    possiblePairs = len(testData) * (len(testData) -1) * 0.5
+    
     testData = classes.standardizeTitles(testData)
     testData = classes.removeSingleOccurenceWords(testData)
     products = classes.reduceProductInfo(testData)    
     products = classes.createHashValues(products)
     totalDuplicates = classes.getRealDuplicates(products)  
 
-    #rArray = [50, 100]
-    
+    #rArray = [50, 100]    
     #numberOfHashes = round(len(classes.getuniqueWordSet(products)) / 2)
+    
+    #Number of hashes set to 200, so each bootstrap has the same rArray
     numberOfHashes = 200
 
     rArray = [round(numberOfHashes/ 1),
@@ -54,7 +58,8 @@ for bootstrap in range(5):
         print("starting round {} with r={} and b={}".format(bootstrap, r, b))     
        
         products = classes.createSignatures(products, numberOfHashes)
-        candidatePairs, products = classes.findCandidatePairsHashed(products, b)
+        candidatePairs, products = classes.findCandidatePairsHashed(products, b)      
+        FoCstar = len(candidatePairs)/ possiblePairs
         
         f1Star, precisionStar, recallStar, TP = classes.calculateF1(candidatePairs, totalDuplicates)
         #print("f1*={0:.3f}, precision*={1:.3f}, recall*={2:.3f}, TP*={3}".format(f1Star, precisionStar, recallStar, TP))
@@ -69,6 +74,9 @@ for bootstrap in range(5):
                 bestTP = TP
                 bestPrecision = precision
                 bestRecall = recall
+                FoC = len(candidatePairsUpdated)/ possiblePairs
+
+                
                 
         #print("f1={0:.3f}, precision={1:.3f}, recall={2:.3f}, TP={3}, TreshHold={4}".format(bestf1, bestPrecision, bestRecall, bestTP, bestTreshHold))
         
@@ -77,9 +85,11 @@ for bootstrap in range(5):
                         "r": r,
                         "b": b,
                         "numberOfHashes": numberOfHashes,
+                        "FoC": FoC,
                         "f1*": np.round(f1Star, 3),
                         "precision*": np.round(precisionStar, 3),
                         "recall*": np.round(recallStar, 3),
+                        "Foc": FoC,
                         "f1": np.round(bestf1, 3),
                         "treshHold" : bestTreshHold,
                         "precision": np.round(bestPrecision, 3),

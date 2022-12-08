@@ -11,9 +11,6 @@ from collections import defaultdict
 #Rename parts of the titles so they are comparable
 def standardizeTitles(data: pd.DataFrame):
     data = data.reset_index()  # make sure indexes pair with number of rows
-    
-    
-    
     for index, row in data.iterrows():   
         editedTitle = row['title'].lower()        
         
@@ -27,7 +24,7 @@ def standardizeTitles(data: pd.DataFrame):
     return data
 
 
-    
+#Remove words that only occur once to improve our LSH algorithm
 def removeSingleOccurenceWords(data: pd.DataFrame):
     titlewords = []   
     
@@ -54,7 +51,7 @@ def removeSingleOccurenceWords(data: pd.DataFrame):
     return data    
 
 
-#Drop all the useless crap
+#Drop all the useless crap, and create a dictionary of each prodcut
 def reduceProductInfo(data):
     products = {}
     for index, row in data.iterrows(): 
@@ -118,7 +115,7 @@ def createSignatures(products, numberOfHashes):
         product["signature"] = signature
     return products
 
-
+#just a random number generator, plucked from somehwere on the internet
 def createRandomNumberList(k, D):   
     randList = []   
     #random.seed(10)
@@ -178,7 +175,7 @@ def findCandidatePairsHashed(products, b):
                     break 
     return (candidatePairs, products)
 
-
+#USe classifiaction to futher improve our f1 score
 def classification(candidatePairs, treshHold):
     candidatePairsUpdated = [] 
     for candidatePair in candidatePairs:
@@ -198,6 +195,7 @@ def isnan(value):
     except:
         return False
     
+#Fairly simple mathmatics just google F1-score
 def calculateF1(candidatePiars, totalDuplicates):   
     TP, FP = getEstimatedDuplicates(candidatePiars)
     if TP == 0:
@@ -209,6 +207,7 @@ def calculateF1(candidatePiars, totalDuplicates):
     
     return f1, precision, recall, TP
   
+#
 def getRealDuplicates(products):
     modelIDs = []
     
